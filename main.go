@@ -5,7 +5,9 @@ import (
 	//"github.com/DevOps-PcNay/Go_Licito/Utilitario"
 	"log"
 	"net/http" // Servidor Web
-	"net/url"  // Usado para generar la URL
+	//"net/url"  // Usado para generar la URL
+	"github.com/DevOps-PcNay/Go_Licito/Utilitario"
+	"html/template"
 )
 
 func main() {
@@ -17,61 +19,68 @@ func main() {
 		// Creando la ruta.
 		// Se agrega los datos de la ruta.
 		host := "www.my-empresa.com" // "localhost:3034"
-		protocolo := "http"
-		ruta_nueva := "/carrito"
-		parametros := map[string]string{"id": "1", "nombre": "Galleta"}
-		Generar_url(ruta_nueva, host, protocolo, nil)
+		protocolo := "https"         // Es el protocolo que se tienen en subdominio : https://www.my-empresa.com
+		ruta_nueva := "/productos"
+		//parametros := map[string]string{"id": "1", "nombre": "Galleta"}
+		//Generar_url(ruta_nueva, host, protocolo, nil)
+		// url := Utilitario.Generar_url(ruta_nueva, host, protocolo, parametros)
+		url := Utilitario.Generar_url(ruta_nueva, host, protocolo, nil)
+		//resolve_req := Utilitario.Request("GET", url)
+		// Genera la URL y le agrega la ruta "productos"
+		log.Println(url)
+		log.Println(Utilitario.Request_Get("GET", url))
 
-		log.Println(Generar_url(ruta_nueva, host, protocolo, parametros))
-
-		/*
-
-			// url.Parse ; url = Es un paquete de Go.
-			// Creando la URL
-			ruta_nueva, err := url.Parse("/carrito")
-
-			if err != nil {
-				panic("Ocurrio Un Error")
-			}
-
-			// Definiendo las opciones requeridas para crear la "ruta"
-			ruta_nueva.Host = host
-			ruta_nueva.Scheme = protocolo
-
-			// Agregando los parametros.
-			nuevo_parametro := ruta_nueva.Query()
-			nuevo_parametro.Add("id", "5")
-			nuevo_parametro.Add("nombre", "Teclados")
-
-			// Agregando a la URL el nuevo parametro creado.
-			ruta_nueva.RawQuery = nuevo_parametro.Encode()
-
-			// Imprime la URL con los parmetros
-			log.Println(ruta_nueva.String())
-		*/
+		//log.Println(resolve_req)
 
 	})
 
 	http.HandleFunc("/productos", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Pagina De Productos")
-		// Para imprimir la URL pero sin el dominio.
-		log.Println("Obteniendo la URL ", r.URL)
-		log.Println("Obteniendo los parametros ", r.URL.RawQuery)
-		// Obteniendo el valor de las variables que se envian en los parametros
-		log.Println("Id Producto = ", r.URL.Query().Get("idProduct"))
-		log.Println("Nombre = ", r.URL.Query().Get("nombre"))
+		fmt.Fprintf(w, "Se accesa a la Pagina De Productos")
+
+		/*
+			// Para imprimir la URL pero sin el dominio.
+			log.Println("Obteniendo la URL ", r.URL)
+			log.Println("Obteniendo los parametros ", r.URL.RawQuery)
+			// Obteniendo el valor de las variables que se envian en los parametros
+			log.Println("Id Producto = ", r.URL.Query().Get("idProduct"))
+			log.Println("Nombre = ", r.URL.Query().Get("nombre"))
+		*/
 
 		// Agregando una variable de http: precio = 10
 		// Se utilizan los mapas
-		nuevo_valor := r.URL.Query()
-		nuevo_valor.Add("precio", "10")
-		log.Println("Contenido Variable Http nueva ", nuevo_valor.Encode())
+		//nuevo_valor := r.URL.Query()
+		//nuevo_valor.Add("precio", "10")
+		//log.Println("Contenido Variable Http nueva ", nuevo_valor.Encode())
 
 	})
 
 	http.HandleFunc("/categorias", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Pagina De Categorias")
 		//http.Redirect(w, r, "/", 301)
+		// Para desplegar el contenido del archivo "html"
+
+	})
+
+	http.HandleFunc("/carrito", func(w http.ResponseWriter, r *http.Request) {
+		// Para desplegar el contenido del archivo "html"
+		// Se debe ubicar el archivo, en este caso se encuentran en el mismo nivel
+		html_archivo, err := template.ParseFiles("Html/index.html")
+		if err != nil {
+			panic("Ocurrio Un Error, en el archivo HTML")
+		}
+		html_archivo.Execute(w, nil)
+
+	})
+
+	http.HandleFunc("/juguetes", func(w http.ResponseWriter, r *http.Request) {
+		// Para desplegar el contenido del archivo "html"
+		// Se debe ubicar el archivo, en este caso se encuentran en el mismo nivel
+		html_archivo, err := template.ParseFiles("Html/Juguetes.html")
+		if err != nil {
+			panic("Ocurrio Un Error, en el archivo HTML")
+		}
+		html_archivo.Execute(w, nil)
+
 	})
 
 	http.HandleFunc("/noencontro", func(w http.ResponseWriter, r *http.Request) {
@@ -84,12 +93,15 @@ func main() {
 		http.Error(w, "Error En El Servidor", 500)
 	})
 
+	// Hasta al final donde se definen las rutas
+	// Debe de colocarse en esta ubicacion, ya que de lo contrario no funciona.
 	// Ejecutando el servidor Web de Go
 	log.Println("Servidor Corriendo ...")
 	http.ListenAndServe(":3034", nil)
 
 }
 
+/*
 func Generar_url(parametro, host, protocolo string, url_generar map[string]string) string {
 	// Se agrega los datos de la ruta.
 	ruta_nueva, err := url.Parse(parametro)
@@ -119,3 +131,4 @@ func Generar_url(parametro, host, protocolo string, url_generar map[string]strin
 	return ruta_nueva.String()
 
 } // func generar_url(parametro, host, pro
+*/
